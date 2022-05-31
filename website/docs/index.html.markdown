@@ -8,6 +8,9 @@ description: |-
 
 # Libvirt Provider
 
+~> **Note:** this is a fork of the [libvirt provider by @dmacvicar](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs) with small changes.  Please
+use the upstream version unless you need the changes in this fork specifically.
+
 The Libvirt provider is used to interact with Linux
 [libvirt](https://libvirt.org) hypervisors.
 
