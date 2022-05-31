@@ -34,9 +34,7 @@ jobs:
         id: import_gpg
         uses: hashicorp/ghaction-import-gpg@v2.1.0
         env:
-          # These secrets will need to be configured for the repository:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+          GPG_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_GPG_KEY }}
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2.5.0
@@ -44,6 +42,5 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-          # GitHub sets this automatically
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: "5C468778062D87BF!"
