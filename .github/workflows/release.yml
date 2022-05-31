@@ -32,10 +32,10 @@ jobs:
       -
         name: Import GPG key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v4
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
+        run: |
+          echo -n "$GPG_PRIVATE_KEY" | gpg --batch --no-tty --import
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_GPG_KEY }}
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2.5.0
@@ -43,6 +43,5 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-          # GitHub sets this automatically
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: "5C468778062D87BF!"
