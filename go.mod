@@ -1,6 +1,7 @@
 module github.com/dmacvicar/terraform-provider-libvirt
 
 require (
+	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/community-terraform-providers/terraform-provider-ignition/v2 v2.1.2
 	github.com/davecgh/go-spew v1.1.1
 	github.com/digitalocean/go-libvirt v0.0.0-20220616141158-7ed4ed4decd9

@@ -3,8 +3,11 @@ package libvirt
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/cenkalti/backoff/v4"
 )
 
 func resourceCloudInitDisk() *schema.Resource {
@@ -71,7 +74,16 @@ func resourceCloudInitDiskCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	d.SetId(key)
 
-	return resourceCloudInitDiskRead(d, meta)
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxInterval = 30 * time.Second
+	expBackoff.MaxElapsedTime = 2 * time.Minute
+
+	return backoff.Retry(
+		func() error {
+			return resourceCloudInitDiskRead(d, meta)
+		},
+		expBackoff,
+	)
 }
 
 func resourceCloudInitDiskRead(d *schema.ResourceData, meta interface{}) error {
