@@ -75,8 +75,8 @@ func resourceCloudInitDiskCreate(d *schema.ResourceData, meta interface{}) error
 	d.SetId(key)
 
 	expBackoff := backoff.NewExponentialBackOff()
-	expBackoff.MaxInterval = 30 * time.Second
-	expBackoff.MaxElapsedTime = 2 * time.Minute
+	expBackoff.MaxInterval = 1 * time.Second
+	expBackoff.MaxElapsedTime = 5 * time.Second
 
 	return backoff.Retry(
 		func() error {
