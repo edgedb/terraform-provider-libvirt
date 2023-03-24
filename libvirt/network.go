@@ -202,6 +202,51 @@ func getNetworkIPConfig(address string, rangeStartOffset int) (*libvirtxml.Netwo
 	return dni, dhcp, nil
 }
 
+func getNetworkDHCPOffset(netxml *libvirtxml.NetworkIP) (int, error) {
+	if netxml.DHCP == nil {
+		return 0, nil
+	}
+
+	gwIP, _, err := net.ParseCIDR(
+		fmt.Sprintf("%s/%d", netxml.Address, netxml.Prefix))
+	if err != nil {
+		return 0, err
+	}
+
+	if len(gwIP) == 4 {
+		gwInt := binary.BigEndian.Uint32(gwIP)
+
+		for _, dhcpRange := range netxml.DHCP.Ranges {
+			startIP := net.ParseIP(dhcpRange.Start)
+			if startIP != nil {
+				startInt := binary.BigEndian.Uint32(startIP)
+				return int(startInt-gwInt) + 1, nil
+			}
+		}
+		return 0, nil
+	} else if len(gwIP) == 16 {
+		gwInt := big.NewInt(0)
+		gwInt.SetBytes(gwIP)
+
+		for _, dhcpRange := range netxml.DHCP.Ranges {
+			startIP := net.ParseIP(dhcpRange.Start)
+			if startIP != nil {
+				startInt := big.NewInt(0)
+				startInt.SetBytes(startIP)
+				diff := big.NewInt(0)
+				diff.Sub(startInt, gwInt)
+				if diff.Cmp(big.NewInt(65535)) >= 0 {
+					return 0, fmt.Errorf("network DCHP offset is too large")
+				}
+				return int(diff.Int64()) + 1, nil
+			}
+		}
+		return 0, nil
+	} else {
+		return 0, fmt.Errorf("unexpected IP address length: %d", len(gwIP))
+	}
+}
+
 // getBridgeFromResource returns a libvirt's NetworkBridge
 // from the ResourceData provided.
 func getBridgeFromResource(d *schema.ResourceData) *libvirtxml.NetworkBridge {

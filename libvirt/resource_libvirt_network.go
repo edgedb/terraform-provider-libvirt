@@ -611,6 +611,11 @@ func resourceLibvirtNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		if address.DHCP != nil {
 			dhcpBlock := map[string]interface{}{}
 			dhcpBlock["enabled"] = true
+			offset, err := getNetworkDHCPOffset(&address)
+			if err != nil {
+				return fmt.Errorf("error reading network dhcp.range_start_offset: %s", err)
+			}
+			dhcpBlock["range_start_offset"] = offset
 			d.Set("dhcp", []map[string]interface{}{dhcpBlock})
 			break
 		}
